@@ -141,9 +141,16 @@
                         /************ Attach param for request here ***************/
                         'access_token': access_token
                     }).then(function (responseToken) {
-                        console.log(responseToken);
+                        // Save access_token in to local storage.
+                        localStorage.setItem("access_token", responseToken.data.data.accessToken);
+                        // TODO get Device token in Firebase and call API save token to DB.
+
+                        // ------
+
+                        // Redirect to home page.
+                        window.location.href = '/index';
                     });
-                    console.log(callAPI.data);
+                    return;
                 } catch (err) {
                     console.log(err);
                 }

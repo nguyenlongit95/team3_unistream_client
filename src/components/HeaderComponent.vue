@@ -275,6 +275,9 @@
                                     </div>
                                     <!-- End modal cập nhật thông tin -->
                                 </li>
+                                <li>
+                                    <p v-on:click="logout()">Đăng xuất</p>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -309,7 +312,8 @@
              ******************************* Initialize global variables ***********************************************
              **********************************************************************************************************/
             return {
-                msg: 'Hello world!'
+                msg: 'Hello world!',
+                access_token: localStorage.getItem('access_token')
             }
         },
         created() {
@@ -317,6 +321,7 @@
              *********************** Initialize data when this component is used. **************************************
              **********************************************************************************************************/
             console.log('Init created component and call to function get data from api server.');
+            this.checkAccessToken();
         },
         mounted() {
             /***********************************************************************************************************
@@ -359,6 +364,14 @@
                 return false;
             },
 
+            /** Function check token for user logined */
+            checkAccessToken() {
+                let access_token = localStorage.getItem('access_token');
+                if (!access_token) {
+                    window.location.href = '/login';
+                }
+            },
+
             /***********************************************************************************************************
              ******* Async and await functions for manipulating server-side data through internal API protocols ********
              **********************************************************************************************************/
@@ -376,6 +389,25 @@
                     console.log(err);
                 }
             },
+
+            /** Function logout and redirect to login page. */
+            async logout() {
+                try {
+                    const token = localStorage.getItem('access_token');
+                    await axios.post('http://localhost/unistream/public/api/logout', {}, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Accept': 'application/json'
+                        }
+                    });
+                } catch (err) {
+                    console.error('Logout error:', err);
+                } finally {
+                    // Luôn xóa token ở client và chuyển trang dù backend có trả về lỗi hay không
+                    localStorage.removeItem('access_token');
+                    window.location.href = '/login';
+                }
+            }
         },
     }
 </script>
