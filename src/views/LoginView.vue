@@ -38,6 +38,7 @@
     // import component1 from 'component1'
     // import component2 from 'component2'
     import { googleTokenLogin } from "vue3-google-login";
+    import { requestPermission } from "@/firebase";
 
     export default {
         /***********************************************************************************************************
@@ -121,7 +122,6 @@
             /** Method login via with Google. */
             async loginWithGoogle() {
                 const googleUser = await googleTokenLogin();
-                console.log("Google token:", googleUser.access_token);
                 // Call to API login.
                 this.callAPILogin(googleUser.access_token);
             },
@@ -144,11 +144,29 @@
                         // Save access_token in to local storage.
                         localStorage.setItem("access_token", responseToken.data.data.accessToken);
                         // TODO get Device token in Firebase and call API save token to DB.
-
+                        // Request notification permission when the app starts.
+                        requestPermission().then(token => {
+                            console.log("FCM Token:" + token);
+                            // Using axios call to server add token to DB
+                            // axios.get('http://localhost/UniStreamAPI/public/api/setDeviceToken', {
+                            //     // Pass param to header
+                            //     headers: {
+                            //         "Content-type" : "application/json",
+                            //         "Authorization": "Bearer " + response.data.data.accessToken
+                            //     },
+                            //     params: {
+                            //         fcmToken: token,
+                            //     }
+                            // }).then(function () {
+                            //     window.location.href = "/index";
+                            // });
+                        }).catch(err => {
+                            console.error("Get token ereors: :", err);
+                        });
                         // ------
 
                         // Redirect to home page.
-                        window.location.href = '/index';
+                        // window.location.href = '/index';
                     });
                     return;
                 } catch (err) {
